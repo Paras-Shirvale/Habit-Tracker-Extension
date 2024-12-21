@@ -1,0 +1,36 @@
+{
+    "manifest_version": 3,
+    "name": "Habit Tracker Extension",
+    "version": "1.0",
+    "description": "A customizable, non-intrusive habit tracker overlay.",
+    "permissions": [
+      "storage",
+      "alarms",
+      "notifications"
+    ],
+    "host_permissions": [
+      "<all_urls>"
+    ],
+    "background": {
+      "service_worker": "background.js"
+    },
+    "action": {
+      "default_popup": "popup.html",
+      "default_icon": "icon.png"
+    },
+    "storage": {
+    "sync": true
+    },
+    "icons": {
+      "48": "icon.png",
+      "128": "icon.png"
+    },
+    "content_scripts": [
+      {
+        "matches": ["<all_urls>"],
+        "js": ["popup.js"],
+        "css": ["style.css"]
+      }
+    ]
+  }
+  

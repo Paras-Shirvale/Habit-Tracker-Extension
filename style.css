@@ -1,0 +1,243 @@
+/* Global styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f5f5f5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: #333;
+  padding: 0 20px;
+}
+
+.container {
+  background: #cafeca;
+  width: 3000px;
+  max-width: 800px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.title {
+  text-align: center;
+  font-size: 32px;
+  margin-bottom: 30px;
+  color: #2f3e46;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+h2, h3 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #2f3e46;
+  font-weight: 600;
+}
+
+.section-title {
+  color: #5d6d7e;
+  margin-bottom: 12px;
+  font-size: 18px;
+  text-transform: uppercase;
+}
+
+/* Form Container */
+.form-container {
+  background: #fafafa;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.form-group {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.habit-input, .time-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #555;
+  background-color: #f9f9f9;
+  transition: all 0.3s ease-in-out;
+}
+
+.habit-input:focus, .time-input:focus {
+  border-color: #4CAF50;
+  background-color: #fff;
+  outline: none;
+}
+
+.add-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #4CAF50;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  margin-top: 15px;
+}
+
+.add-btn:hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+}
+
+.add-btn:active {
+  background-color: #388e3c;
+  transform: translateY(0);
+}
+
+/* Habit List Table */
+.habit-list-container {
+  margin-top: 20px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.habit-list {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.habit-list th, .habit-list td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+.habit-list th {
+  background-color: #f1f1f1;
+  color: #2f3e46;
+  font-weight: bold;
+}
+
+.habit-list tr:hover {
+  background-color: #f9f9f9;
+}
+
+button {
+  padding: 8px 14px;
+  font-size: 14px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  margin: 5px 0;
+  display: inline-block;
+  width: auto; /* Making buttons more compact */
+}
+
+button.done-btn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+button.done-btn:hover {
+  background-color: #45a049;
+}
+
+button.done-btn:disabled {
+  background-color: #dcdcdc;
+  cursor: not-allowed;
+}
+
+button.reset-streak-btn {
+  background-color: #ff9800;
+  color: white;
+}
+
+button.reset-streak-btn:hover {
+  background-color: #f57c00;
+}
+
+button.delete-btn {
+  background-color: #e91e63;
+  color: white;
+}
+
+button.delete-btn:hover {
+  background-color: #d81b60;
+}
+
+/* Edit Button Styling */
+button.edit-btn {
+  background-color: #007bff; /* Blue button */
+  color: white;
+}
+
+button.edit-btn:hover {
+  background-color: #0056b3;
+}
+
+button.edit-btn:active {
+  background-color: #003f7f;
+}
+
+/* Table Row Action Buttons */
+button:hover {
+  transform: scale(1.05);
+}
+
+input, button {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Search Habit Input */
+#search-container {
+  margin-bottom: 25px;
+}
+
+#search-habit {
+  padding: 12px;
+  font-size: 16px;
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+  transition: border 0.3s ease-in-out;
+}
+
+#search-habit:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Sort Dropdown */
+#sort-by-container {
+  margin-bottom: 20px;
+}
+
+.sort-select {
+  padding: 10px;
+  font-size: 16px;
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+}
+
+.sort-select:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
