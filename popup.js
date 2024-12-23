@@ -6,7 +6,7 @@ function renderHabits(sortBy = "name", searchQuery = "") {
 
     if (data.habits && data.habits.length > 0) {
       // Filter the habits by the search query
-      const filteredHabits = data.habits.filter(habit => 
+      const filteredHabits = data.habits.filter(habit =>
         habit.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
 
@@ -41,6 +41,7 @@ function renderHabits(sortBy = "name", searchQuery = "") {
             </button>
             <button class="reset-streak-btn" data-id="${habit.id}">Reset</button>
             <button class="delete-btn" data-id="${habit.id}">Delete</button>
+            <button class="edit-btn" data-id="${habit.id}">Edit</button>
           </td>
         `;
         habitList.appendChild(row);
@@ -109,7 +110,7 @@ document.getElementById("search-habit").addEventListener("input", (event) => {
   renderHabits(sortBy, searchQuery); // Re-render with search query and selected sort
 });
 
-// Handle clicks on the habit list (Done, Reset, Delete buttons)
+// Handle clicks on the habit list (Done, Reset, Delete, Edit buttons)
 document.getElementById("habit-list").addEventListener("click", (event) => {
   const habitId = event.target.dataset.id;
 
@@ -131,57 +132,82 @@ document.getElementById("habit-list").addEventListener("click", (event) => {
   }
 
   if (event.target.classList.contains("reset-streak-btn")) {
-    const habitName = event.target.closest("tr").querySelector('[data-field="name"]').innerText;
-    const habitStreak = event.target.closest("tr").querySelector('td:nth-child(3)').innerText.split(' ')[0];
-    const confirmReset = confirm(`Your current streak for "${habitName}" is ${habitStreak} days. Are you sure you want to reset the streak? This action can't be undone. 😱`);
-    if (confirmReset) {
-      chrome.storage.sync.get("habits", (data) => {
-        const habits = data.habits || [];
-        const habit = habits.find(h => h.id === habitId);
-        if (habit) {
+    chrome.storage.sync.get("habits", (data) => {
+      const habits = data.habits || [];
+      const habit = habits.find(h => h.id === habitId);
+
+      if (habit) {
+        const confirmReset = confirm(`Reset streak for "${habit.name}"?`);
+        if (confirmReset) {
           habit.streak = 0;
           habit.lastCompletedDate = '';
 
           chrome.storage.sync.set({ habits }, renderHabits);
         }
-      });
-    }
+      }
+    });
   }
 
   if (event.target.classList.contains("delete-btn")) {
-    const habitName = event.target.closest("tr").querySelector('[data-field="name"]').innerText;
-    const confirmDelete = confirm(`Are you sure you want to delete the habit "${habitName}"? This action cannot be undone. 😱`);
-    if (confirmDelete) {
-      chrome.storage.sync.get("habits", (data) => {
-        const habits = data.habits || [];
-        const habitIndex = habits.findIndex(h => h.id === habitId);
-        if (habitIndex !== -1) {
-          habits.splice(habitIndex, 1); // Remove the habit by id
+    chrome.storage.sync.get("habits", (data) => {
+      const habits = data.habits || [];
+      const updatedHabits = habits.filter(habit => habit.id !== habitId);
 
-          chrome.storage.sync.set({ habits }, renderHabits);
+      chrome.storage.sync.set({ habits: updatedHabits }, renderHabits);
+    });
+  }
+
+  if (event.target.classList.contains("edit-btn")) {
+    chrome.storage.sync.get("habits", (data) => {
+      const habits = data.habits || [];
+      const habitToEdit = habits.find(habit => habit.id === habitId);
+
+      if (habitToEdit) {
+        const newName = prompt("Edit Habit Name:", habitToEdit.name);
+        const newTime = prompt("Edit Reminder Time (HH:MM):", habitToEdit.time);
+
+        if (newName && newTime) {
+          habitToEdit.name = newName;
+          habitToEdit.time = newTime;
+
+          chrome.storage.sync.set({ habits }, () => {
+            renderHabits();
+            alert("Habit updated successfully!");
+
+            // Update alarm
+            chrome.runtime.sendMessage(
+              { action: "updateAlarm", habit: habitToEdit },
+              (response) => {
+                if (!response.success) {
+                  console.error("Failed to update alarm.");
+                }
+              }
+            );
+          });
+        } else {
+          alert("Habit name and time cannot be empty.");
         }
-      });
-    }
+      }
+    });
   }
 });
 
-// Handle double-click for editing habit name and time
+// Handle double-click for inline editing
 document.getElementById("habit-list").addEventListener("dblclick", (event) => {
   if (event.target.classList.contains("editable")) {
     const field = event.target.dataset.field;
     const habitId = event.target.dataset.id;
-    const newValue = prompt(`Edit ${field.charAt(0).toUpperCase() + field.slice(1)}:`, event.target.innerText);
+    const newValue = prompt(`Edit ${field}:`, event.target.innerText);
 
-    // Validate the time format for time field
     if (field === "time") {
-      const timeFormat = /^([01]?[0-9]|2[0-3]):([0-5][0-9])$/; // HH:MM format
+      const timeFormat = /^([01]?[0-9]|2[0-3]):([0-5][0-9])$/;
       if (!newValue.match(timeFormat)) {
-        alert("Invalid time format. Please enter time in the format HH:MM (e.g., 14:30).");
+        alert("Invalid time format. Use HH:MM.");
         return;
       }
     }
 
-    if (newValue && newValue !== event.target.innerText) {
+    if (newValue) {
       chrome.storage.sync.get("habits", (data) => {
         const habits = data.habits || [];
         const habit = habits.find(h => h.id === habitId);
@@ -189,36 +215,14 @@ document.getElementById("habit-list").addEventListener("dblclick", (event) => {
         if (habit) {
           habit[field] = newValue;
 
-          chrome.storage.sync.set({ habits }, () => {
-            renderHabits(); // Re-render the habit list
-            alert(`${field.charAt(0).toUpperCase() + field.slice(1)} updated successfully!`);
-          });
-
-          // Update alarm for time change if the field edited was 'time'
-          if (field === "time") {
-            chrome.runtime.sendMessage({ action: "updateNotification", habit: habit }, (response) => {
-              if (response.success) {
-                console.log(`Alarm updated for: ${habit.name}`);
-              } else {
-                console.error("Failed to update alarm.");
-              }
-            });
-          }
+          chrome.storage.sync.set({ habits }, renderHabits);
         }
       });
     }
   }
 });
 
-// Render habits when the popup is opened
+// Initial render when popup opens
 document.addEventListener("DOMContentLoaded", () => {
-  renderHabits(); // Initial render with default sorting
+  renderHabits();
 });
-
-
-
-
-  // Reset Streak to zero if the Done is not clicked for the day.
-  // Editable or Customizable Name and Time for the habit. Notification at edited time.
-  // If there are tow habits at the same time, the notification should be shown for both the habits.
-  // If habit is done, the notification should not be shown.
